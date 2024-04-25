@@ -3,44 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barcode Scanner</title>
-  <!-- Include QuaggaJS library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js" integrity="sha512-bCsBoYoW6zE0aja5xcIyoCDPfT27+cGr7AOCqelttLVRGay6EKGQbR6wm6SUcUGOMGXJpj+jrIpMS6i80+kZPw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <title>Document</title>
+  <script src="./node_modules/html5-qrcode/html5-qrcode.min.js"></script>
+  <style>
+    main {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #reader {
+        width: 600px;
+    }
+    #result {
+        text-align: center;
+        font-size: 1.5rem;
+    }
+</style>
 </head>
 <body>
-  <h1>Barcode Scanner</h1>
-  <div id="barcodeScanner" style="width: 100%; height: 200px;"></div>
-  <input type="text" id="dueDateInput" placeholder="Due Date">
-  <script>
-    // Initialize QuaggaJS
-    Quagga.init({
-      inputStream: {
-        name: "Live",
-        type: "LiveStream",
-        target: document.querySelector('#barcodeScanner'),
-        constraints: {
-          facingMode: "environment" // Use the rear camera
-        },
-      },
-      decoder: {
-        readers: ["ean_reader", "code_128_reader"], // Define barcode formats to detect
-      },
-    }, function(err) {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      console.log("QuaggaJS ready to start scanning.");
-      Quagga.start();
+  <main>
+    <div id="reader"></div>
+    <div id="result"></div>
+  </main>
+  
+</body>
+
+<script>
+  const scanner = new Html5QrcodeScanner('reader', { 
+        // Scanner will be initialized in DOM inside element with id of 'reader'
+        qrbox: {
+            width: 250,
+            height: 250,
+        },  // Sets dimensions of scanning box (set relative to reader element width)
+        fps: 20, // Frames per second to attempt a scan
     });
 
-    // Handle detected barcodes
-    Quagga.onDetected(function(result) {
-      const barcode = result.codeResult.code;
-      // Assume barcode contains date information, you might need to parse it accordingly
-      const dueDate = barcode; // Replace this with your parsing logic
-      document.getElementById('dueDateInput').value = dueDate;
-    });
-  </script>
-</body>
+
+    scanner.render(success, error);
+    // Starts scanner
+
+    function success(result) {
+
+        document.getElementById('result').innerHTML = `
+        <h2>Success!</h2>
+        <p><a href="${result}">${result}</a></p>
+        `;
+        // Prints result as a link inside result element
+
+        scanner.clear();
+        // Clears scanning instance
+
+        document.getElementById('reader').remove();
+        // Removes reader element from DOM since no longer needed
+    
+    }
+
+    function error(err) {
+        console.error(err);
+        // Prints any errors to the console
+    }
+</script>
+
+
 </html>
